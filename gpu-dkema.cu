@@ -432,7 +432,6 @@ main(int argc, char **argv)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-//RAPH: calcul CPU
 template<class T>
 T* reduceCPUdiff(T *data, int size, uchar *Sbox9, uchar* Sbox8,uchar* DK)
 {
@@ -624,7 +623,6 @@ ulong* benchmarkReduce(int  n,
 	//call_mixblock<<<dimg,dimb>>>(d_idata,n,nb,d_Sbox16,d_Sbox8, d_DK);
 	//	call_mixblockdiff<<<dimg,dimb>>>(d_idata,n,nb,d_Sbox16,d_Sbox8, d_DK);
 	//	cudaDeviceSynchronize();
-	//RAPH: debut du calcul
 	call_reduceSinglePassMultiBlockCG(n, numThreads, numBlocks, d_idata, d_odata, d_Sbox9,d_Sbox8, d_DK);
         cudaDeviceSynchronize();
         sdkStopTimer(&timer);
@@ -761,13 +759,11 @@ runTest(int argc, char **argv, int device)
     sdkStartTimer(&transfertimer);
     //sleep(2);
     // copy data directly to device memory
-    //RAPH: là on copie du CPU vers le GPU
     checkCudaErrors(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
   
 
     sdkStopTimer(&transfertimer);
     
-    //RAPH: on copie pour la sortie CA SERT A RIEN, j'ai du laisser ca car ca buggait à un moment
     checkCudaErrors(cudaMemcpy(d_odata, h_idata, numBlocks*sizeof(ulong)*szblock, cudaMemcpyHostToDevice));
    
    
@@ -780,7 +776,7 @@ runTest(int argc, char **argv, int device)
    float transferTime = sdkGetAverageTimerValue(&transfertimer);
     printf("Average transfer (HOST-> DEVICE) time: %f ms\n", transferTime);
 
-    int testIterations = 100;
+    int testIterations = 1000;
 
     StopWatchInterface *timer = 0;
     sdkCreateTimer(&timer);
@@ -788,14 +784,12 @@ runTest(int argc, char **argv, int device)
     ulong *gpu_result;
 
 
-    //RAPH: on lance la routine qui lance 100 itérations
     gpu_result = benchmarkReduce(size, numThreads, numBlocks, maxThreads, maxBlocks,
                                  testIterations, timer, h_odata, d_idata, d_odata, d_Sbox9, d_Sbox8, d_DK);
 
     float reduceTime = sdkGetAverageTimerValue(&timer);
     printf("Average time: %f ms\n", reduceTime);
     printf("Bandwidth:    %f GB/s\n\n", (size * sizeof(ulong)) / (reduceTime * 1.0e6));
-printf("aaaa\n");
     // compute reference solution
 
   StopWatchInterface *cputimer = 0;
@@ -812,7 +806,6 @@ float cpuTime = sdkGetAverageTimerValue(&cputimer);
  printf("Average CPU time: %f ms\n", cpuTime);
 
 
-printf("aaaa\n");
     printf("GPU result = ");
     for(int i=0;i<szblock;i++) {
       printf("%lu ", gpu_result[i]);

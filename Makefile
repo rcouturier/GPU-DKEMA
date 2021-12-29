@@ -297,7 +297,7 @@ endif
 # Target rules
 all: build
 
-build: reduction_raph
+build: gpu-dkema
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -306,19 +306,19 @@ else
 	@echo "Sample is ready - all dependencies have been met"
 endif
 
-reduction_raph.o:reduction_raph.cu
+gpu-dkema.o:gpu-dkema.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(GENCODE_FLAGS) -o $@ -c $<
 
-reduction_raph: reduction_raph.o
+gpu-dkema: gpu-dkema.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./reduction_raph
+	$(EXEC) ./gpu-dkema
 
 clean:
-	rm -f reduction_raph reduction_raph.o
-	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/reduction_raph
+	rm -f gpu-dkema gpu-dkema.o
+	rm -rf ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)/gpu-dkema
 
 clobber: clean
