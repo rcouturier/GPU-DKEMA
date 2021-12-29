@@ -315,7 +315,7 @@ gpu-dkema: gpu-dkema.o
 	$(EXEC) cp $@ ../../bin/$(TARGET_ARCH)/$(TARGET_OS)/$(BUILD_TYPE)
 
 run: build
-	$(EXEC) ./gpu-dkema
+	$(EXEC) ./gpu-dkema 
 
 clean:
 	rm -f gpu-dkema gpu-dkema.o
